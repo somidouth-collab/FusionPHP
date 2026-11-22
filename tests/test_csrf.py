@@ -97,6 +97,9 @@ def server(extra_modules=None, overrides=None, setup=None):
         with (root / 'server.log').open('w+') as log:
             command = ['php', '-d', f'session.save_path={root / "storage/sessions"}',
                        '-S', f'127.0.0.1:{port}', '-t', 'public']
+            if env['APP_BASE_PATH']:
+                # Model a mount that forwards the original prefixed URI.
+                command.append('public/index.php')
             process = subprocess.Popen(command, cwd=root, env=env, stdout=log, stderr=log)
             try:
                 for _ in range(60):

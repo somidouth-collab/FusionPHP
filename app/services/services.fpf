@@ -1,0 +1,114 @@
+<header class="page-header">
+<h1>{{ title }}</h1>
+<p>Work through browser requests, validation, middleware, session storage, flash messages, and database writes.</p>
+</header>
+<nav class="docs-contents" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+        <li><a href="#form">Requests and responses</a></li>
+        <li><a href="#middleware">Middleware and access control</a></li>
+        <li><a href="#csrf">CSRF protection</a></li>
+        <li><a href="#sessions">Sessions and flash messages</a></li>
+        <li><a href="#auth">Authentication and permissions</a></li>
+        <li><a href="#database">Database and models</a></li>
+        <li><a href="#diagnostics">Diagnostics and maintenance</a></li>
+    </ul>
+</nav>
+<section id="form">
+    <h2>Requests and responses</h2>
+    <p>Use <code>$this-&gt;request</code> in a controller or middleware. <code>query()</code> reads query parameters, <code>post()</code> reads form fields, <code>json()</code> reads the JSON body, and <code>file()</code> returns PHP upload metadata. Check the upload error code before using a file.</p>
+    <p><code>view()</code> renders HTML. <code>json()</code>, <code>redirect()</code>, and <code>abort()</code> finish an action. <code>validate()</code> supports <code>required</code>, <code>string</code>, <code>min</code>, <code>max</code>, <code>email</code>, and <code>numeric</code>. Web validation stores errors and old input in the session before redirecting back. API validation returns 422 with field errors.</p>
+    <h3>Handle a GET and POST on one page</h3>
+    <p>Save the next two files in <code>app/preferences/</code> and open <code>/index.php/preferences</code> in your browser. Enter a name and submit. The POST validates the value and stores it in your current session, then redirects to the GET page with a flash message. The hidden session token protects the form submission, and the GET clears validation data after using it.</p>
+    <h3>app/preferences/PreferencesController.php</h3>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ preferencesController }}</code></pre>
+    </div>
+    <h3>app/preferences/preferences.fpf</h3>
+    <div class="code-block">
+        <div class="code-label">FPF</div>
+        <pre tabindex="0" aria-label="FPF example"><code data-language="html">{{ preferencesTemplate }}</code></pre>
+    </div>
+    <h3>Submit the form and check the result</h3>
+    <ol class="docs-steps">
+        <li>Open <code>/index.php/preferences</code> and save <code>Ada</code>. After the redirect, the input still shows <strong>Ada</strong> and the page displays <strong>Preferences saved.</strong>.</li>
+        <li>Reload the page. The name stays in the session and the flash message disappears.</li>
+        <li>To verify server-side validation, remove the input’s <code>required</code> attribute in your browser inspector and submit an empty name. The form should return with <strong>Name is required.</strong>.</li>
+        <li>Change the hidden <code>_csrf</code> value and submit. The controller returns HTTP 403 before saving anything.</li>
+    </ol>
+</section>
+<section id="middleware">
+    <h2>Middleware and access control</h2>
+    <p>Application middleware lives in <code>app/AppMiddleware.php</code>. A page can add <code>ExampleMiddleware.php</code> in its own folder. The router runs <code>before()</code> from application to page and <code>after()</code> in reverse order. Returning false blocks the request.</p>
+    <p>Save this as <code>app/account/AccountMiddleware.php</code> alongside an existing <code>AccountController.php</code>. The first <code>protected</code> is the PHP visibility modifier. The second is the inherited method name. The pattern <code>/account/*</code> covers both <code>/account</code> and its subpaths. For rules that span multiple controllers, use <code>app/AppMiddleware.php</code> and preserve its session and flash initialization.</p>
+    <p>When an unauthenticated browser requests a protected account route, the default handler sends it to <code>/auth/login</code>. Define that route in your app or override the handler. Override <code>guest()</code> for guest-only paths. An authentication failure on a protected API route returns 401.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ accountMiddleware }}</code></pre>
+    </div>
+    <h3>Check the route boundary</h3>
+    <p>Open an existing account route in a signed-out browser. Expect an HTTP 302 redirect to the login URL. Sign in through your application and try again. Session authentication allows the account controller to run. Middleware on the account module runs only for routes dispatched to that module.</p>
+</section>
+<section id="csrf">
+    <h2>CSRF protection</h2>
+    <p>Use <code>Fusion\Core\Csrf::token()</code> when rendering a session-backed form and pass the value into a hidden <code>_csrf</code> field. Call <code>Csrf::protect($this-&gt;request)</code> before validation and any writes in the receiving action. The starter <code>AppMiddleware</code> opens sessions for web routes, and for API routes when <code>API_SESSION=true</code>.</p>
+    <p>AJAX clients can send the token in the <code>X-CSRF-Token</code> header. Declarative FusionPHP AJAX forms can send the same <code>_csrf</code> field as FormData or JSON. When present, the header takes precedence over the body. Tokens in query parameters are ignored.</p>
+    <p>Protection is opt-in. To protect every write route in a module, call the helper from its <code>before()</code> middleware hook. It skips GET, HEAD, and OPTIONS, so keep those methods read-only. Missing or invalid tokens return HTTP 403. Reload the form after login or logout to obtain a fresh token.</p>
+</section>
+<section id="sessions">
+    <h2>Sessions and flash messages</h2>
+    <p><code>Session::login()</code> stores a verified user and rotates the session ID. Authenticate the user in your application before calling it. Use <code>Session::user()</code>, <code>isLoggedIn()</code>, and <code>logout()</code> to manage the session. <code>Flash</code> makes a message available during the next request that starts or uses the session.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ session }}</code></pre>
+    </div>
+</section>
+<section id="auth">
+    <h2>Authentication and permissions</h2>
+    <p>Use <code>Fusion\Core\Auth</code> with the account store in your application. When creating an account, store <code>password_hash($password, PASSWORD_DEFAULT)</code>. During sign-in, load the account with a parameterized lookup and pass its ID, password hash, optional display name, and server-assigned permissions to <code>Auth::attempt()</code>. Pass <code>null</code> when no account matches and show the same failure message for an unknown account and a wrong password.</p>
+    <h3>Verify credentials and start the session</h3>
+    <p>Use this in a POST controller action. The associated GET action renders a form with <code>email</code>, <code>password</code>, and a hidden <code>_csrf</code> from <code>Csrf::token()</code>. The example assumes a <code>users</code> table with <code>id</code>, <code>email</code>, <code>name</code>, and <code>password_hash</code> columns. It grants <code>account.view</code> to every verified user.</p>
+    <div class="code-block">
+        <div class="code-label">PHP sign-in action</div>
+        <pre tabindex="0" aria-label="Password sign-in example"><code data-language="php">{{ signIn }}</code></pre>
+    </div>
+    <p>Keep credentials and login attempt limiting in your application’s login flow. <code>Auth::attempt()</code> stores only the user ID, optional name, and permissions. The session ID and CSRF token change on successful sign-in.</p>
+    <h3>Enforce permissions and sign out</h3>
+    <p>Use <code>Auth::can('account.view')</code> to decide whether to show a link, then enforce the same permission in the receiving action. A signed-out request gets HTTP 401. A signed-in user without the permission gets HTTP 403. The project’s existing route middleware can redirect signed-out browsers to your login page before the action runs.</p>
+    <div class="code-block">
+        <div class="code-label">PHP protected action and logout</div>
+        <pre tabindex="0" aria-label="Permission and logout examples"><code data-language="php">{{ permissionExample }}</code></pre>
+    </div>
+    <p>Register <code>signOut()</code> as POST and include a fresh CSRF token in its form. Permissions are copied into the session at sign-in. When a permission can be revoked while a user is signed in, also check the account store before sensitive actions.</p>
+</section>
+<section id="database">
+    <h2>Database and models</h2>
+    <p>This example creates a draft, publishes it in the same transaction, and prints the saved title. You’ll need PDO SQLite for PHP. Set <code>DB_DRIVER=sqlite</code> and <code>DB_PATH=storage/database.sqlite</code> in <code>.env</code>.</p>
+    <h3>1. Create the table</h3>
+    <p>Run <code>php fusion migrate:make create_articles</code> and replace the contents of the new file under <code>migrations/</code> with this example. It uses SQLite’s integer primary key syntax.</p>
+    <div class="code-block">
+        <div class="code-label">PHP migration</div>
+        <pre tabindex="0" aria-label="Articles migration example"><code data-language="php">{{ articleMigration }}</code></pre>
+    </div>
+    <p>Run <code>php fusion migrate:status</code> to see pending work, then <code>php fusion migrate</code> to create the table. The runner applies pending migrations in filename order and records each one. A second run has nothing to apply. <code>php fusion migrate:rollback</code> runs the last applied migration’s <code>down</code> closure. For this example that drops the table and its rows.</p>
+    <p>The migration runner supports SQLite and PostgreSQL. Each apply batch and each rollback runs in a transaction. Keep applied files intact and add a new migration for later changes. If a file is missing or its contents change, the runner stops until the original is restored. For MySQL, apply schema changes with your database tooling.</p>
+    <h3>2. Define the model</h3>
+    <p>Save this model as <code>app/articles/Article.php</code>. The table name selects where rows are stored, and the fillable list controls which fields <code>create()</code> accepts.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ articleFile }}</code></pre>
+    </div>
+    <h3>3. Run a transaction</h3>
+    <p>Save the following as <code>articles-demo.php</code> in the project directory, beside <code>app/</code>. Run <code>php articles-demo.php</code>. It prints <strong>Published: Hello</strong>. Each run inserts one article. The bound query selects the article by ID and status, and the transaction rolls back if an exception escapes its callback.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ articleUsage }}</code></pre>
+    </div>
+</section>
+<section id="diagnostics">
+    <h2>Diagnostics and maintenance</h2>
+    <h3>Run the automated checks</h3>
+    <p>From the project directory, run <code>python3 -B -m unittest discover -s tests -v</code>. The tests start temporary PHP servers and create isolated app, session, and database fixtures. Enable the CLI PDO SQLite extension to run the migration tests. GitHub Actions runs the same suite and checks PHP and JavaScript syntax on pushes and pull requests.</p>
+    <p>Enable <code>FUSIONPHP_DEBUG=true</code> locally for the page toolbar and <code>/_debug</code>. Exceptions are logged to <code>storage/logs/error.log</code>. In normal mode the router and templates reuse files in <code>storage/cache/</code>. Give the PHP process write access to those storage directories if you want logs and caches to persist.</p>
+</section>

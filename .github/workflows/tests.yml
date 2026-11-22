@@ -1,0 +1,44 @@
+name: FusionPHP tests
+
+'on':
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3', '8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite
+          coverage: none
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require SQLite
+        run: |
+          php -r 'exit(in_array("sqlite", PDO::getAvailableDrivers(), true) ? 0 : 1);'
+      - name: PHP syntax
+        run: |
+          php -l fusion
+          find app fusionphp plugins public -name '*.php' -print0 | xargs -0 -r -n 1 php -l
+      - name: JavaScript syntax
+        run: |
+          node --check public/assets/js/fusionphp.js
+          node --check public/assets/js/appearance.js
+      - name: Integration tests
+        run: python3 -B -m unittest discover -s tests -v

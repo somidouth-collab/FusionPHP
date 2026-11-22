@@ -1,0 +1,96 @@
+<header class="page-header">
+    <h1>Appearance</h1>
+    <p>Customize the documentation and reuse the same look in your own project.</p>
+</header>
+
+<section aria-labelledby="preferences-title">
+    <h2 id="preferences-title">Preferences</h2>
+    <div id="appearance-controls" class="grid grid-cols-1 grid-cols-3-md gap-md" role="group" aria-labelledby="preferences-title">
+        <div>
+            <label class="form-label" for="appearance-theme">Color scheme</label>
+            <select disabled class="form-select" id="appearance-theme" name="theme">
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="appearance-accent">Accent color</label>
+            <select disabled class="form-select" id="appearance-accent" name="accent">
+                <option value="blue">Blue</option>
+                <option value="teal">Teal</option>
+                <option value="violet">Violet</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="appearance-font">Font family</label>
+            <select disabled class="form-select" id="appearance-font" name="font">
+                <option value="inter">Inter</option>
+                <option value="dm-sans">DM Sans</option>
+                <option value="source-serif">Source Serif 4</option>
+                <option value="system">System font</option>
+            </select>
+        </div>
+    </div>
+    <button type="button" id="appearance-reset" class="btn btn-outline mt-md" hidden>Reset to defaults</button>
+    <p id="appearance-status" class="mt-sm" role="status"></p>
+</section>
+
+<section aria-labelledby="preview-title">
+    <h2 id="preview-title">Preview</h2>
+    <div class="grid grid-cols-1 grid-cols-2-md gap-md">
+        <article class="card card-body">
+            <h3>Typography and buttons</h3>
+            <p class="text-muted">This card shows your selected font, accent color, and surface colors.</p>
+            <div class="flex flex-wrap gap-sm">
+                <button type="button" class="btn btn-primary">Primary</button>
+                <button type="button" class="btn btn-outline">Outline</button>
+            </div>
+        </article>
+        <article class="card card-body">
+            <h3>Color palette</h3>
+            <div class="flex flex-wrap gap-sm">
+                <span class="bg-primary rounded p-sm">Accent</span>
+                <span class="bg-success rounded p-sm">Success</span>
+                <span class="bg-warning rounded p-sm">Warning</span>
+                <span class="bg-danger rounded p-sm">Danger</span>
+                <span class="bg-info rounded p-sm">Info</span>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section aria-labelledby="reuse-title">
+    <h2 id="reuse-title">Use FusionPHPStyle</h2>
+    <p>See the <a href="{{ url stylesUrl }}">FusionPHPStyle reference</a> for the full list of components and utility classes.</p>
+    <p><a href="{{ url styleCssUrl }}" download="fusionphpstyle.css">Download fusionphpstyle.css</a> and place it next to your HTML file, or adjust the path in this example. Resize the window to see the grid switch from one to two columns.</p>
+    <div class="code-block">
+        <div class="code-label">HTML</div>
+        <pre tabindex="0" aria-label="HTML example"><code id="appearance-example"><span class="code-keyword">&lt;!doctype</span> html&gt;
+<span class="code-keyword">&lt;html</span> lang=<span class="code-string">"en"</span> <span id="appearance-example-attributes">data-font=<span class="code-string">"inter"</span></span>&gt;
+<span class="code-keyword">&lt;head</span>&gt;
+  <span class="code-keyword">&lt;meta</span> charset=<span class="code-string">"utf-8"</span>&gt;
+  <span class="code-keyword">&lt;meta</span> name=<span class="code-string">"viewport"</span> content=<span class="code-string">"width=device-width, initial-scale=1"</span>&gt;
+  <span class="code-keyword">&lt;title</span>&gt;My project<span class="code-keyword">&lt;/title</span>&gt;
+<span id="appearance-example-font-link">  <span class="code-keyword">&lt;link</span> rel=<span class="code-string">"stylesheet"</span> href=<span class="code-string">"https://fonts.googleapis.com/css2?family=Inter:wght@400..800&amp;amp;display=swap"</span>&gt;
+</span>  <span class="code-keyword">&lt;link</span> rel=<span class="code-string">"stylesheet"</span> href=<span class="code-string">"./fusionphpstyle.css"</span>&gt;
+<span class="code-keyword">&lt;/head</span>&gt;
+<span class="code-keyword">&lt;body</span>&gt;
+  <span class="code-keyword">&lt;header</span> class=<span class="code-string">"navbar"</span>&gt;
+    <span class="code-keyword">&lt;nav</span> class=<span class="code-string">"navbar-container"</span> aria-label=<span class="code-string">"Main navigation"</span>&gt;
+      <span class="code-keyword">&lt;a</span> class=<span class="code-string">"navbar-brand"</span> href=<span class="code-string">"./"</span>&gt;My project<span class="code-keyword">&lt;/a</span>&gt;
+      <span class="code-keyword">&lt;ul</span> class=<span class="code-string">"navbar-nav"</span>&gt;
+        <span class="code-keyword">&lt;li</span>&gt;<span class="code-keyword">&lt;a</span> class=<span class="code-string">"nav-link"</span> href=<span class="code-string">"./"</span> aria-current=<span class="code-string">"page"</span>&gt;Home<span class="code-keyword">&lt;/a</span>&gt;<span class="code-keyword">&lt;/li</span>&gt;
+      <span class="code-keyword">&lt;/ul</span>&gt;
+    <span class="code-keyword">&lt;/nav</span>&gt;
+  <span class="code-keyword">&lt;/header</span>&gt;
+  <span class="code-keyword">&lt;main</span> class=<span class="code-string">"container grid grid-cols-1 grid-cols-2-md gap-md mt-lg"</span>&gt;
+    <span class="code-keyword">&lt;article</span> class=<span class="code-string">"card card-body"</span>&gt;First column<span class="code-keyword">&lt;/article</span>&gt;
+    <span class="code-keyword">&lt;article</span> class=<span class="code-string">"card card-body bg-primary"</span>&gt;Second column<span class="code-keyword">&lt;/article</span>&gt;
+  <span class="code-keyword">&lt;/main</span>&gt;
+<span class="code-keyword">&lt;/body</span>&gt;
+<span class="code-keyword">&lt;/html</span>&gt;</code></pre>
+    </div>
+    <p>Use <code>.navbar</code> and <code>.navbar-container</code> for the site header. Add <code>aria-current="page"</code> to the active link. Wrap a code example in <code>.code-block</code> and add a <code>.code-label</code> above the <code>&lt;pre&gt;</code> element. Optional <code>.code-keyword</code>, <code>.code-string</code>, and <code>.code-comment</code> classes color tokens you mark up in your examples.</p>
+    <p>Use <code>.container</code> for a centered layout, <code>.grid</code> with column classes for responsive layouts, and <code>.flex</code> with <code>.flex-wrap</code> and <code>.gap-md</code> for flexible rows. Use <code>.bg-primary</code>, <code>.bg-success</code>, <code>.bg-warning</code>, <code>.bg-danger</code>, or <code>.bg-info</code> for fills with their matching text colors.</p>
+</section>

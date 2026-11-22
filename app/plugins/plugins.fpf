@@ -1,0 +1,85 @@
+<header class="page-header">
+    <h1>{{ title }}</h1>
+    <p>Install a bundled module, or build your own and share it as a FusionPHP plugin.</p>
+</header>
+<nav class="docs-contents" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+        <li><a href="#install">Install a plugin</a></li>
+        <li><a href="#create">Build a plugin</a></li>
+        <li><a href="#plugin-migrations">Database migrations</a></li>
+        <li><a href="#manifest">Package and share</a></li>
+    </ul>
+</nav>
+<section id="install">
+    <h2>Install a plugin</h2>
+    <p>Run these commands from the project directory, where the <code>fusion</code> script lives.</p>
+    <div class="code-block">
+        <div class="code-label">Shell</div>
+        <pre tabindex="0" aria-label="Plugin installation commands"><code data-language="shell">php fusion plugin:list
+php fusion plugin:install admin-panel</code></pre>
+    </div>
+    <p>Open <code>/admin</code> or <code>/index.php/admin</code>. Sign in as <code>admin</code> with the password printed during installation. The starter panel displays application information. Use HTTPS on deployed sites and make sure the web server passes the Authorization header to PHP.</p>
+    <p>Use <code>php fusion plugin:reset-password admin-panel</code> if you lose the password. The installation stores its hash in <code>app/admin/.plugin-password</code>. If PHP runs as a different account from the installer, give the PHP worker read access to that file.</p>
+</section>
+<section id="create">
+    <h2>Build a plugin</h2>
+    <ol class="docs-steps">
+        <li>Generate a starter package with <code>php fusion plugin:make status-page</code>.</li>
+        <li>Edit the files under <code>plugins/status-page/</code>. The controller defines the route and passes a title to <code>views/index.php</code>. Add a model or middleware using the same conventions as a regular FusionPHP module.</li>
+        <li>Install the package with <code>php fusion plugin:install status-page</code>. This copies it into <code>app/pluginstatuspage/</code> and makes it discoverable by the router.</li>
+        <li>Open <code>/plugin/status-page</code>, or <code>/index.php/plugin/status-page</code> on a server without URL rewriting. The starter page displays its title and <strong>Your plugin is installed.</strong></li>
+    </ol>
+    <div class="code-block">
+        <div class="code-label">Generated files</div>
+        <pre tabindex="0" aria-label="Starter plugin file tree"><code>plugins/status-page/
+  plugin.json
+  PluginstatuspageController.php
+  views/
+    index.php</code></pre>
+    </div>
+    <h3>Customize the starter page</h3>
+    <p>Change <code>show()</code> in the generated controller to pass data to the view. For example, pass a status message with the title.</p>
+    <div class="code-block">
+        <div class="code-label">PHP controller</div>
+        <pre tabindex="0" aria-label="Plugin controller action"><code data-language="php">public function show(): void
+{
+    $this-&gt;view('index', [
+        'title' =&gt; 'Status Page',
+        'status' =&gt; 'All systems operational.',
+    ]);
+}</code></pre>
+    </div>
+    <p>In <code>views/index.php</code>, replace the starter message with <code>&lt;p&gt;&lt;?= e($status) ?&gt;&lt;/p&gt;</code>. The <code>e()</code> helper escapes the value. Reload the plugin route to see the new message.</p>
+    <p>The starter route is public. Add module middleware or another access check before putting private data on it. Web plugin routes are available in <code>web</code> and <code>both</code> modes. See the <a href="{{ url servicesUrl }}">Core services guide</a> for middleware examples.</p>
+    <p>Installation copies the package once. Calling install again preserves the installed files. To test edits after installation, apply them to the installed module as well. Use the package folder as the source you share.</p>
+</section>
+<section id="plugin-migrations">
+    <h2>Ship database migrations</h2>
+    <p>Generate a file with <code>php fusion migrate:make create_status_events</code>, then move it to the plugin package’s <code>migrations/</code> directory before installing the plugin. Implement both closures as shown in the <a href="{{ url servicesUrl }}">Core services database guide</a>.</p>
+    <p>After installing the plugin, run <code>php fusion migrate</code>. The runner reads migrations from installed plugin modules and tracks their IDs separately from application migrations. Installation copies files only. Keep the installed migration files available for future status checks and rollback.</p>
+</section>
+<section id="manifest">
+    <h2>Package and share</h2>
+    <p>Share the <code>plugins/status-page/</code> folder. Another FusionPHP project can place it in its own <code>plugins/</code> directory and run the same install command. The CLI reads <code>plugin.json</code> automatically. Packages explicitly registered in <code>plugins/catalog.php</code>, such as the Admin Panel, use their catalog entry.</p>
+    <div class="code-block">
+        <div class="code-label">plugin.json</div>
+        <pre tabindex="0" aria-label="Plugin manifest example"><code data-language="json">{
+    "module": "pluginstatuspage",
+    "description": "Status Page plugin.",
+    "route": "/plugin/status-page",
+    "password": false
+}</code></pre>
+    </div>
+    <dl>
+        <dt><code>module</code></dt>
+        <dd>Lowercase destination under <code>app/</code>. Its capitalized name determines the controller class and filename.</dd>
+        <dt><code>description</code></dt>
+        <dd>Short label shown by <code>php fusion plugin:list</code>.</dd>
+        <dt><code>route</code></dt>
+        <dd>Entry URL printed by the installer. Declare the same route in the controller.</dd>
+        <dt><code>password</code></dt>
+        <dd>Set to <code>true</code> only if the plugin verifies the managed password hash itself. The starter uses <code>false</code>.</dd>
+    </dl>
+    <p>Install only packages you trust. A plugin runs with the same permissions as your application. The CLI refuses to overwrite an existing application module.</p>
+</section>

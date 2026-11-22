@@ -1,0 +1,73 @@
+<header class="page-header">
+<h1>{{ title }}</h1>
+<p>Pass data from a controller and render it with escaped expressions, loops, and a shared layout.</p>
+</header>
+<nav class="docs-contents" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+        <li><a href="#controller-data">Pass data from a controller</a></li>
+        <li><a href="#layout">Write the page and layout</a></li>
+        <li><a href="#helpers">Format values with built-in functions</a></li>
+        <li><a href="#escaping">Render values safely</a></li>
+        <li><a href="#template-errors">Compilation and errors</a></li>
+    </ul>
+</nav>
+<section id="controller-data">
+    <h2>Pass data from a controller</h2>
+    <p>Pass an array to <code>view()</code>. A dotted path such as <code>guide.title</code> reads a nested array field. Missing values render as empty text.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ dataExample }}</code></pre>
+    </div>
+</section>
+<section id="layout">
+    <h2>Write the page and layout</h2>
+    <p>Save the example as <code>app/example/example.fpf</code> and the layout as <code>app/layouts/guide.fpf</code>. Add the controller call above to an action registered by your controller.</p>
+    <p>Use the <code>.fpf</code> extension for pages and layouts. A page can extend a layout from <code>app/layouts/</code> by name, without the extension. A named block supplies the content for a matching yield in the layout.</p>
+    <div class="code-block">
+        <div class="code-label">Page template</div>
+        <pre tabindex="0" aria-label="Page template example"><code data-language="html">{{ pageExample }}</code></pre>
+    </div>
+    <div class="code-block">
+        <div class="code-label">Layout template</div>
+        <pre tabindex="0" aria-label="Layout template example"><code data-language="html">{{ layoutExample }}</code></pre>
+    </div>
+    <h3>Check both branches</h3>
+    <p>With the controller data above, the rendered page shows the heading <strong>Example</strong> and a link labeled <strong>Framework guide</strong>. Set <code>guides</code> to an empty array to exercise the <strong>No guides yet.</strong> branch. The surrounding document comes from <code>guide.fpf</code> in either case.</p>
+    <p>Use <code>if</code> for truthy values, <code>else</code> for the fallback, and <code>for</code> to iterate over an array. Put control directives between tags. For a standalone template, start with HTML and omit the layout declaration.</p>
+    <h3>PHP template fallback</h3>
+    <p>To use a PHP view for the same controller action, save the following as <code>app/example/views/example.php</code> and remove the matching <code>example.fpf</code>. The <code>main</code> layout is provided in <code>app/layouts/main.php</code>. Generate trusted route URLs in the controller before passing them to the view, and escape output with <code>e()</code>.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ phpExample }}</code></pre>
+    </div>
+</section>
+<section id="helpers">
+    <h2>Format values with built-in functions</h2>
+    <dl>
+        {% for helper in functions %}
+        <dt><code>{{ helper.example }}</code></dt>
+        <dd>{{ helper.description }}</dd>
+        {% endfor %}
+    </dl>
+    <p>Functions accept dotted field paths. Use single or double quotes for fallback text and separators. In an HTML attribute, use the opposite quote style from the one surrounding the attribute.</p>
+    <p>Use functions in text and supported ordinary attributes. Their results are escaped. For URL attributes, use <code>url</code> with a field path.</p>
+</section>
+<section id="escaping">
+    <h2>Render values safely</h2>
+    <p>The engine escapes interpolated text and supported quoted attributes. Use the <code>url</code> expression for links, images, and form destinations. It accepts local paths and HTTP or HTTPS URLs.</p>
+    <p>In ordinary quoted attributes, write one expression as the entire value. Supported attributes include <code>class</code>, <code>id</code>, <code>title</code>, <code>alt</code>, <code>name</code>, <code>value</code>, <code>placeholder</code>, and <code>aria-label</code>. The URL expression is available for <code>href</code>, <code>src</code>, <code>action</code>, and <code>formaction</code>.</p>
+    <p>Keep template files under application control and pass user content as data. Use a static stylesheet link in the layout. The current template language supports a limited set of HTML elements and excludes script and style elements.</p>
+</section>
+<section id="template-errors">
+    <h2>Compilation and errors</h2>
+    <dl>
+        <dt>A value is blank</dt>
+        <dd>Check the spelling and nesting of the controller data. <code>guide.title</code> is available inside the loop that defines <code>guide</code>; outside it, use a field passed directly to <code>view()</code>.</dd>
+        <dt>A layout fails to load</dt>
+        <dd>Check that the filename in <code>app/layouts/</code> matches the name in the <code>extends</code> directive. Match the block name in the page to the yield name in the layout.</dd>
+        <dt>The compiler reports an unsupported element or attribute</dt>
+        <dd>Use the reported file and line to inspect the markup. Elements such as <code>script</code> and <code>style</code> belong in a PHP layout when your page needs them.</dd>
+    </dl>
+    <p>With debug disabled, the engine caches compiled instructions under <code>storage/cache/templates/</code>. Editing a template refreshes its cache entry.</p>
+</section>

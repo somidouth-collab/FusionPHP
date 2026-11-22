@@ -1,0 +1,286 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+if (PHP_SAPI !== 'cli') {
+    exit(1);
+}
+
+$root = __DIR__;
+
+function fail(string $message): never
+{
+    fwrite(STDERR, $message . PHP_EOL);
+    exit(1);
+}
+
+function copyPackage(string $source, string $destination): void
+{
+    if (!mkdir($destination, 0755)) {
+        throw new RuntimeException('Could not create the plugin directory.');
+    }
+    foreach (new FilesystemIterator($source) as $item) {
+        $target = $destination . '/' . $item->getFilename();
+        if ($item->isLink()) {
+            throw new RuntimeException('Plugin packages must contain regular files and directories.');
+        }
+        if ($item->isDir()) {
+            copyPackage($item->getPathname(), $target);
+        } elseif (!$item->isFile() || !copy($item->getPathname(), $target)) {
+            throw new RuntimeException('Could not copy a plugin file.');
+        }
+    }
+}
+
+function cleanStage(string $directory): void
+{
+    if (!is_dir($directory)) {
+        return;
+    }
+    $children = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($children as $child) {
+        if ($child->isDir() && !$child->isLink()) {
+            rmdir($child->getPathname());
+        } else {
+            unlink($child->getPathname());
+        }
+    }
+    rmdir($directory);
+}
+
+function isInstalled(string $directory, string $module, string $name): bool
+{
+    $marker = $directory . '/.fusionphp-plugin';
+    return !is_link($directory) && is_readable($marker)
+        && file_get_contents($marker) === $module . ':' . $name . PHP_EOL;
+}
+
+function writePassword(string $directory): string
+{
+    $password = bin2hex(random_bytes(20));
+    $file = $directory . '/.plugin-password-' . bin2hex(random_bytes(8));
+    $previousMask = umask(0077);
+    try {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        if (!is_string($hash) || file_put_contents($file, $hash . PHP_EOL) === false
+            || !rename($file, $directory . '/.plugin-password')) {
+            throw new RuntimeException('Could not write the plugin password.');
+        }
+    } finally {
+        umask($previousMask);
+        if (is_file($file)) {
+            unlink($file);
+        }
+    }
+    return $password;
+}
+
+function pluginCatalog(string $root): array
+{
+    $catalog = require $root . '/plugins/catalog.php';
+    foreach (glob($root . '/plugins/*/plugin.json') ?: [] as $file) {
+        $name = basename(dirname($file));
+        if (isset($catalog[$name])) {
+            // Explicit catalog entries take precedence.
+            continue;
+        }
+        $content = file_get_contents($file);
+        if ($content === false) {
+            throw new RuntimeException("Could not read the manifest for {$name}.");
+        }
+        $entry = json_decode($content, true);
+        if (!validPluginName($name) || !is_array($entry)
+            || !is_string($entry['module'] ?? null) || !preg_match('/\A[a-z][a-z0-9]*\z/', $entry['module'])
+            || !is_string($entry['description'] ?? null) || trim($entry['description']) === ''
+            || !is_string($entry['route'] ?? null) || !preg_match('~\A/(?:[a-z0-9-]+/)*[a-z0-9-]+\z~', $entry['route'])
+            || !is_bool($entry['password'] ?? null)) {
+            throw new RuntimeException("Invalid plugin manifest for {$name}. See the Plugins guide.");
+        }
+        $catalog[$name] = $entry;
+    }
+    ksort($catalog);
+    return $catalog;
+}
+
+function validPluginName(string $name): bool
+{
+    return strlen($name) <= 48 && preg_match('/\A[a-z][a-z0-9]*(?:-[a-z0-9]+)*\z/', $name) === 1;
+}
+
+function makePlugin(string $root, string $name, array $catalog): void
+{
+    if (!validPluginName($name)) {
+        throw new RuntimeException('Use a lowercase plugin name such as status-page, up to 48 characters.');
+    }
+    $module = 'plugin' . str_replace('-', '', $name);
+    $target = $root . '/plugins/' . $name;
+    if (isset($catalog[$name]) || file_exists($target) || is_link($target)) {
+        throw new RuntimeException("A plugin package named {$name} already exists.");
+    }
+    if (in_array($module, array_column($catalog, 'module'), true)
+        || file_exists($root . '/app/' . $module) || is_link($root . '/app/' . $module)) {
+        throw new RuntimeException("The generated app module {$module} is already in use. Choose a different name.");
+    }
+
+    $title = ucwords(str_replace('-', ' ', $name));
+    $class = ucfirst($module);
+    $route = '/plugin/' . $name;
+    $manifest = [
+        'module' => $module,
+        'description' => $title . ' plugin.',
+        'route' => $route,
+        'password' => false,
+    ];
+    $controller = <<<'CONTROLLER'
+<?php
+
+namespace App\%CLASS%;
+
+use Fusion\Core\Controller;
+
+final class %CLASS%Controller extends Controller
+{
+    protected function views(): array
+    {
+        return [
+            'index' => ['aliases' => ['%ROUTE%'], 'handlers' => ['GET' => 'show']],
+        ];
+    }
+
+    public function show(): void
+    {
+        $this->view('index', ['title' => '%TITLE%']);
+    }
+}
+CONTROLLER;
+    $view = <<<'VIEW'
+<section class="container mt-lg">
+    <header class="page-header">
+        <h1><?= e($title) ?></h1>
+        <p>Your plugin is installed.</p>
+    </header>
+</section>
+VIEW;
+    $stage = $root . '/plugins/.plugin-' . bin2hex(random_bytes(8));
+    try {
+        if (!mkdir($stage . '/views', 0755, true)) {
+            throw new RuntimeException('Could not create the starter plugin directory.');
+        }
+        $files = [
+            'plugin.json' => json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            $class . 'Controller.php' => strtr($controller, [
+                '%CLASS%' => $class, '%ROUTE%' => ltrim($route, '/'), '%TITLE%' => $title,
+            ]),
+            'views/index.php' => $view,
+        ];
+        foreach ($files as $file => $contents) {
+            if (file_put_contents($stage . '/' . $file, $contents . PHP_EOL) !== strlen($contents . PHP_EOL)) {
+                throw new RuntimeException("Could not write {$file}.");
+            }
+        }
+        if (!rename($stage, $target)) {
+            throw new RuntimeException('Could not publish the starter plugin.');
+        }
+    } finally {
+        cleanStage($stage);
+    }
+
+    echo "Created plugins/{$name}. Install with php fusion plugin:install {$name}\n";
+    echo "After installing, open {$route}.\n";
+}
+
+$command = $argv[1] ?? '';
+if ($command === 'migrate' || str_starts_with($command, 'migrate:')) {
+    require $root . '/fusionphp/cli/migrations.php';
+    try {
+        runMigrationCommand($root, $command, array_slice($argv, 2));
+    } catch (Throwable $error) {
+        fail($error->getMessage());
+    }
+    exit(0);
+}
+
+if ($command === 'plugin:list' && $argc === 2) {
+    try {
+        foreach (pluginCatalog($root) as $name => $entry) {
+            $target = $root . '/app/' . $entry['module'];
+            $installed = isInstalled($target, $entry['module'], $name);
+            printf("%-16s %-13s %s\n", $name, $installed ? '[installed]' : '[available]', $entry['description']);
+        }
+    } catch (Throwable $error) {
+        fail($error->getMessage());
+    }
+    exit(0);
+}
+
+if ($argc !== 3 || !in_array($command, ['plugin:make', 'plugin:install', 'plugin:reset-password'], true)) {
+    fail("Usage:\n  php fusion plugin:list\n  php fusion plugin:make NAME\n  php fusion plugin:install NAME\n  php fusion plugin:reset-password NAME\n  php fusion migrate:make NAME\n  php fusion migrate:status\n  php fusion migrate\n  php fusion migrate:rollback");
+}
+
+$name = $argv[2];
+$lock = @fopen($root . '/storage/.plugin-install.lock', 'c');
+if ($lock === false || !flock($lock, LOCK_EX)) {
+    fail('Could not lock plugin installation. Check write permissions on storage/.');
+}
+
+$password = null;
+try {
+    $catalog = pluginCatalog($root);
+    if ($command === 'plugin:make') {
+        makePlugin($root, $name, $catalog);
+    } elseif (!isset($catalog[$name])) {
+        throw new RuntimeException('Unknown plugin. Run php fusion plugin:list.');
+    } else {
+        $entry = $catalog[$name];
+        $target = $root . '/app/' . $entry['module'];
+        $password = managePlugin($root, $command, $name, $entry, $target);
+    }
+} catch (Throwable $error) {
+    fail($error->getMessage());
+} finally {
+    fclose($lock);
+}
+
+if ($password !== null) {
+    echo "Username: admin\nPassword: {$password}\n";
+}
+
+function managePlugin(string $root, string $command, string $name, array $entry, string $target): ?string
+{
+    $password = null;
+    $installed = isInstalled($target, $entry['module'], $name);
+    if ($command === 'plugin:reset-password') {
+        if (!$installed || !$entry['password']) {
+            throw new RuntimeException('This installed plugin does not have a managed password.');
+        }
+        $password = writePassword($target);
+        echo "Password reset for {$name}.\n";
+    } elseif ($installed) {
+        echo "{$name} is already installed at {$entry['route']}.\n";
+    } else {
+        if (file_exists($target) || is_link($target)) {
+            throw new RuntimeException('An application module already occupies app/' . $entry['module'] . '.');
+        }
+        $stage = $root . '/app/.plugin-' . bin2hex(random_bytes(8));
+        try {
+            copyPackage($root . '/plugins/' . $name, $stage);
+            if (file_put_contents($stage . '/.fusionphp-plugin', $entry['module'] . ':' . $name . PHP_EOL) === false) {
+                throw new RuntimeException('Could not write the plugin marker.');
+            }
+            if ($entry['password']) {
+                $password = writePassword($stage);
+            }
+            if (!rename($stage, $target)) {
+                throw new RuntimeException('Could not activate the plugin.');
+            }
+        } finally {
+            cleanStage($stage);
+        }
+        echo "Installed {$name}. Open {$entry['route']} on your FusionPHP site.\n";
+    }
+    return $password;
+}

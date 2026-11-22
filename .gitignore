@@ -1,0 +1,8 @@
+.env
+/storage/cache/
+/storage/database.sqlite
+/storage/logs/*.log
+/storage/.plugin-install.lock
+/app/.plugin-*/
+/app/*/.plugin-password
+/app/*/.plugin-password-*

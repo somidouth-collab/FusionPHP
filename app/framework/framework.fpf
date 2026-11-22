@@ -1,0 +1,113 @@
+<header class="page-header">
+<h1>{{ title }}</h1>
+<p>Install FusionPHP and build a page that reads a query parameter, prepares data, and renders a template.</p>
+</header>
+<nav class="docs-contents" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+        <li><a href="#run-locally">Run locally</a></li>
+        <li><a href="#environment">Configure the environment</a></li>
+        <li><a href="#first-page">Create a page</a></li>
+        <li><a href="#request-flow">Follow a request</a></li>
+        <li><a href="#plugins">Plugins</a></li>
+        <li><a href="#first-page-errors">Troubleshooting</a></li>
+    </ul>
+</nav>
+<section id="run-locally">
+    <h2>Run locally</h2>
+    <p>You’ll need PHP 8.1 or later available as <code>php</code> in your terminal. From the directory containing <code>app/</code> and <code>public/</code>, run the commands below and open <a href="http://127.0.0.1:8000">localhost on port 8000</a>. The documentation runs without a database.</p>
+    <div class="code-block">
+        <div class="code-label">Shell</div>
+        <pre tabindex="0" aria-label="Shell example"><code data-language="shell">{{ command }}</code></pre>
+    </div>
+    <p>Use <code>public/</code> as the document root so configuration and storage stay outside it. For clean URLs such as <code>/framework</code>, route application requests to <code>public/index.php</code> and serve existing assets directly. If URL rewrites are unavailable, use <code>/index.php/framework</code> on a server that passes path information to PHP. The direct form works for JSON routes too, for example <code>/index.php/api</code>.</p>
+</section>
+<section id="environment">
+    <h2>Configure the environment</h2>
+    <p>Edit <code>.env</code> in the project root. <code>.env.example</code> is the reference file. Use one <code>KEY=value</code> per line and <code>#</code> for comments. Quote a value to preserve surrounding spaces or a comment character. Process environment variables take precedence over <code>.env</code>, and unspecified keys use framework defaults.</p>
+    <div class="code-block">
+        <div class="code-label">.env</div>
+        <pre tabindex="0" aria-label=".env example"><code data-language="shell">{{ environmentExample }}</code></pre>
+    </div>
+    <dl>
+        {% for setting in settings %}
+        <dt><code>{{ setting.keys }}</code></dt>
+        <dd>{{ setting.purpose }}</dd>
+        {% endfor %}
+    </dl>
+    <p>Use <code>config('app.name')</code> or another dotted key to read a setting from PHP. Keep real credentials in the local environment or a deployment secret store. The <code>.env</code> file is ignored by Git.</p>
+</section>
+<section id="first-page">
+    <h2>Create a page</h2>
+    <p>Create the following files in <code>app/welcome/</code>. FusionPHP discovers <code>App\Welcome\WelcomeController</code> from the folder and controller filename.</p>
+    <h3>1. Register the route and write the action</h3>
+    <p>Save this file as <code>app/welcome/WelcomeController.php</code>.</p>
+    <p>The route accepts GET requests at <code>/welcome</code> and <code>/hello</code>. Both aliases call <code>show()</code>.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ welcomeController }}</code></pre>
+    </div>
+    <h3>2. Prepare the page data</h3>
+    <p>Save this file as <code>app/welcome/WelcomeModel.php</code>.</p>
+    <p>The model prepares display data. This example needs no database connection.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ welcomeModel }}</code></pre>
+    </div>
+    <h3>3. Render the template</h3>
+    <p>Save this file as <code>app/welcome/welcome.fpf</code>. The first argument to <code>view('welcome', $data)</code> selects this filename. The second supplies the variables used in the template.</p>
+    <div class="code-block">
+        <div class="code-label">FPF</div>
+        <pre tabindex="0" aria-label="FPF example"><code data-language="html">{{ welcomeTemplate }}</code></pre>
+    </div>
+    <h3>4. Check the result</h3>
+    <dl>
+        <dt><code>/index.php/welcome?name=Ada</code></dt>
+        <dd>The page heading is <strong>Welcome</strong> and the greeting is <strong>Hello, Ada!</strong>.</dd>
+        <dt><code>/index.php/hello</code></dt>
+        <dd>The second alias reaches the same action. The template uses <strong>Hello, visitor!</strong> because the query parameter is absent.</dd>
+        <dt><code>/index.php/welcome?name=%3Cb%3EAda%3C%2Fb%3E</code></dt>
+        <dd>The page shows the literal text <code>&lt;b&gt;Ada&lt;/b&gt;</code>. The template escapes the query value instead of interpreting it as HTML.</dd>
+    </dl>
+    <p>Use <code>$this-&gt;request-&gt;url('/welcome')</code> to generate an application URL that follows the configured mount path and the current entry-point style. The second argument can be <code>true</code> for a static asset URL. Continue with <a href="{{ url templatesUrl }}">template layouts</a>, <a href="{{ url servicesUrl }}">form handling and middleware</a>, or the <a href="{{ url apiGuideUrl }}">JSON API guide</a>.</p>
+</section>
+<section id="request-flow">
+    <h2>Follow a request</h2>
+    <ol class="docs-steps">
+        <li><code>public/index.php</code> loads configuration and dispatches through the router.</li>
+        <li>The router matches <code>GET /welcome</code> and invokes application and page middleware.</li>
+        <li><code>WelcomeController::show()</code> reads the query parameter and calls <code>WelcomeModel::page()</code>.</li>
+        <li>The controller hands the result to <code>welcome.fpf</code>. Middleware cleanup runs in reverse order.</li>
+    </ol>
+    <p>Enable local diagnostics with <code>FUSIONPHP_DEBUG=1</code> before starting PHP. For database-backed pages, install the PDO driver that matches the configured database.</p>
+</section>
+<section id="plugins">
+    <h2>Install plugins</h2>
+    <p>From the project directory, run this command to install the bundled Admin Panel.</p>
+    <div class="code-block">
+        <div class="code-label">Shell</div>
+        <pre tabindex="0" aria-label="Admin Panel install command"><code data-language="shell">php fusion plugin:install admin-panel</code></pre>
+    </div>
+    <p>Open <code>/admin</code> or <code>/index.php/admin</code> and sign in as <code>admin</code> with the password printed by the installer. The read-only dashboard shows the application version, mode, and debugging status. Use HTTPS on deployed sites and configure your web server to pass the Authorization header to PHP. The panel is available in <code>web</code> and <code>both</code> modes.</p>
+    <p>The installer prints the password once and stores only its hash. Store the password securely. If the CLI and web server use different accounts, give the PHP worker read access to <code>app/admin/.plugin-password</code> without making it publicly readable.</p>
+    <dl>
+        <dt><code>php fusion plugin:list</code></dt>
+        <dd>List bundled plugins and their installation status.</dd>
+        <dt><code>php fusion plugin:install admin-panel</code></dt>
+        <dd>Install the plugin. Running it again preserves the existing files and password.</dd>
+        <dt><code>php fusion plugin:reset-password admin-panel</code></dt>
+        <dd>Generate a new password and invalidate the previous one.</dd>
+    </dl>
+    <p>To generate a starter module and package it for other projects, follow the <a href="{{ url pluginsUrl }}">Plugins guide</a>.</p>
+</section>
+<section id="first-page-errors">
+    <h2>Troubleshoot the first page</h2>
+    <dl>
+        <dt>404 on the clean URL</dt>
+        <dd>Try <code>/index.php/welcome</code>. If it works, check your web server’s rewrite to <code>public/index.php</code>. If both fail, check the directory and class names and set <code>APP_MODE=both</code> or <code>web</code>.</dd>
+        <dt>405 Method Not Allowed</dt>
+        <dd>Use GET for this page. A form action that accepts POST must list POST in <code>methods</code> and map it to a handler.</dd>
+        <dt>500 after creating the files</dt>
+        <dd>Run <code>php -l app/welcome/WelcomeController.php</code> and check the PHP server log. For template errors, check the reported file and line number.</dd>
+    </dl>
+</section>

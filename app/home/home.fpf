@@ -1,0 +1,28 @@
+<header class="page-header">
+    <h1>{{ title }}</h1>
+    <p>A standalone PHP framework that keeps each page’s controller, model, and view together.</p>
+    <div class="flex flex-wrap gap-sm mt-md">
+        <a class="btn btn-primary" href="{{ url frameworkUrl }}">Build your first page</a>
+        <a class="btn btn-outline" href="{{ url classesUrl }}">Look up a class</a>
+    </div>
+</header>
+<section aria-labelledby="learning-path">
+    <h2 id="learning-path">Build an application</h2>
+    <ol class="docs-steps">
+        <li><a href="{{ url frameworkUrl }}">Start the local server and build a page.</a> Follow a GET request from the URL through a controller and model to the HTML response.</li>
+        <li><a href="{{ url templatesUrl }}">Create a shared layout.</a> Pass data into a template, render a list, and see how escaping works.</li>
+        <li><a href="{{ url servicesUrl }}">Handle forms and store data.</a> Save a preference, protect a route with middleware, and try a database transaction.</li>
+        <li><a href="{{ url apiGuideUrl }}">Create a JSON endpoint.</a> Send requests and compare successful and invalid responses.</li>
+    </ol>
+</section>
+<section aria-labelledby="docs-reference">
+    <h2 id="docs-reference">Reference and styling</h2>
+    <div class="grid grid-auto gap-md">
+    {% for guide in guides %}
+    <article class="card card-body">
+        <h2><a href="{{ url guide.url }}">{{ guide.title }}</a></h2>
+        <p>{{ guide.description }}</p>
+    </article>
+    {% endfor %}
+    </div>
+</section>

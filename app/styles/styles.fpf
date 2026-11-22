@@ -1,0 +1,400 @@
+<header class="page-header">
+    <h1>{{ title }}</h1>
+    <p>FusionPHP’s standalone CSS toolkit for responsive layouts, navigation, common interface components, and light and dark themes.</p>
+    <div class="flex flex-wrap gap-sm mt-md">
+        <a class="btn btn-primary" href="{{ url styleCssUrl }}" download="fusionphpstyle.css">Download fusionphpstyle.css</a>
+        <a class="btn btn-outline" href="{{ url fusionScriptUrl }}" download="fusionphp.js">Download fusionphp.js</a>
+        <a class="btn btn-outline" href="{{ url appearanceUrl }}">Configure appearance</a>
+    </div>
+</header>
+<nav class="card card-body mt-lg" aria-label="On this page">
+    <ul class="list-group">
+        <li><a class="list-group-item" href="#setup">Installation</a></li>
+        <li><a class="list-group-item" href="#layouts">Layouts</a></li>
+        <li><a class="list-group-item" href="#components">Components</a></li>
+        <li><a class="list-group-item" href="#code">Code examples</a></li>
+        <li><a class="list-group-item" href="#utilities">Utilities</a></li>
+        <li><a class="list-group-item" href="#theming">Theming</a></li>
+        <li><a class="list-group-item" href="#javascript">JavaScript components</a></li>
+        <li><a class="list-group-item" href="#ajax">AJAX requests</a></li>
+    </ul>
+</nav>
+
+<section id="setup">
+<h2>Installation</h2>
+<p>Download <code>fusionphpstyle.css</code> and place it beside your HTML file, or update the link to match your assets directory. In a FusionPHP project, the bundled file lives under <code>public/assets/css/</code>. If you used the previous filename, update your stylesheet links to <code>fusionphpstyle.css</code>.</p>
+<p>The stylesheet applies a global box-sizing and spacing reset, sets body and heading typography, styles links, and adds visible keyboard focus to interactive elements. Load your app stylesheet afterward to customize the defaults. Layouts, themes, and utility classes work with HTML and CSS alone.</p>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;!doctype html&gt;
+&lt;html lang="en" data-theme="system"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;title&gt;My project&lt;/title&gt;
+  &lt;link rel="stylesheet" href="./fusionphpstyle.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;main class="container mt-lg"&gt;
+    &lt;header class="page-header"&gt;&lt;h1&gt;My project&lt;/h1&gt;&lt;/header&gt;
+  &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+
+</section>
+
+<section id="layouts">
+<h2>Layouts</h2>
+<p>Use <code>.container</code> for a centered, padded layout capped by <code>--container-width</code> (1280px by default), or <code>.container-fluid</code> for a full-width layout with horizontal padding. Add <code>.grid</code> to the parent of a grid and use a column class or <code>.grid-auto</code> for automatically fitting columns with a target minimum width of 15rem.</p>
+
+<div class="table-responsive" role="region" aria-label="Grid breakpoints" tabindex="0">
+<table class="table">
+<thead><tr><th scope="col">Viewport</th><th scope="col">Column classes</th></tr></thead>
+<tbody>
+<tr><td>Any width</td><td><code>.grid-cols-1</code>, <code>.grid-cols-2</code>, <code>.grid-cols-3</code>, <code>.grid-cols-4</code>, <code>.grid-cols-5</code>, <code>.grid-cols-6</code></td></tr>
+<tr><td>768px and up</td><td><code>.grid-cols-1-md</code>, <code>.grid-cols-2-md</code>, <code>.grid-cols-3-md</code>, <code>.grid-cols-4-md</code></td></tr>
+<tr><td>1024px and up</td><td><code>.grid-cols-1-lg</code>, <code>.grid-cols-2-lg</code>, <code>.grid-cols-3-lg</code>, <code>.grid-cols-4-lg</code>, <code>.grid-cols-5-lg</code>, <code>.grid-cols-6-lg</code></td></tr>
+<tr><td>1280px and up</td><td><code>.grid-cols-1-xl</code>, <code>.grid-cols-2-xl</code>, <code>.grid-cols-3-xl</code>, <code>.grid-cols-4-xl</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Breakpoint classes apply from their minimum width upward. Stack multiple classes to increase columns as room becomes available. The following grid starts with one column, then shows two at 768px and three at 1024px.</p>
+<div class="grid grid-cols-1 grid-cols-2-md grid-cols-3-lg gap-md">
+    <div class="card card-body">Overview</div>
+    <div class="card card-body">Activity</div>
+    <div class="card card-body">Settings</div>
+</div>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;div class="grid grid-cols-1 grid-cols-2-md grid-cols-3-lg gap-md"&gt;
+  &lt;div class="card card-body"&gt;Overview&lt;/div&gt;
+  &lt;div class="card card-body"&gt;Activity&lt;/div&gt;
+  &lt;div class="card card-body"&gt;Settings&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</div>
+
+<p>Use <code>.flex</code> for a single row or column. Set direction with <code>.flex-row</code> or <code>.flex-col</code>. Add <code>.flex-wrap</code> for wrapping, <code>.items-start</code>, <code>.items-center</code>, or <code>.items-end</code> for cross-axis alignment, and <code>.justify-start</code>, <code>.justify-center</code>, <code>.justify-end</code>, <code>.justify-between</code>, or <code>.justify-around</code> for main-axis alignment. The gap utilities work on both grid and flex containers.</p>
+</section>
+
+<section id="components">
+<h2>Components</h2>
+<h3>Navbar</h3>
+<p>Use <code>.navbar</code> on the outer header, <code>.navbar-container</code> on the navigation, <code>.navbar-brand</code> for the brand, and <code>.navbar-nav</code> for the link list. Apply <code>.nav-link</code> to each link. Mark the current link with <code>aria-current="page"</code>. The <code>.active</code> class also applies the active visual style. The navbar sticks at desktop widths and wraps with normal document flow below 768px.</p>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;header class="navbar"&gt;
+  &lt;nav class="navbar-container" aria-label="Main navigation"&gt;
+    &lt;a class="navbar-brand" href="/"&gt;My project&lt;/a&gt;
+    &lt;ul class="navbar-nav"&gt;
+      &lt;li&gt;&lt;a class="nav-link" href="/" aria-current="page"&gt;Home&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="nav-link" href="/settings"&gt;Settings&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;</code></pre>
+</div>
+
+<h3>Page headers, cards, and lists</h3>
+<p><code>.page-header</code> styles the introduction to a page. Wrap related content in <code>.card</code> and use <code>.card-header</code>, <code>.card-body</code>, and <code>.card-footer</code> for its regions. Use <code>.list-group</code> on a list and <code>.list-group-item</code> on each row or row link.</p>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;article class="card"&gt;
+  &lt;header class="card-header"&gt;&lt;h2&gt;Project&lt;/h2&gt;&lt;/header&gt;
+  &lt;div class="card-body"&gt;
+    &lt;ul class="list-group"&gt;
+      &lt;li class="list-group-item"&gt;Overview&lt;/li&gt;
+      &lt;li class="list-group-item"&gt;Activity&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;footer class="card-footer"&gt;Updated today&lt;/footer&gt;
+&lt;/article&gt;</code></pre>
+</div>
+
+<h3>Buttons and forms</h3>
+<p>Start with <code>.btn</code> and add <code>.btn-primary</code>, <code>.btn-secondary</code>, <code>.btn-outline</code>, or <code>.btn-danger</code>. Use <code>.btn-sm</code> or <code>.btn-lg</code> for size and <code>.btn-block</code> for full width. Use a button for actions and an anchor with <code>href</code> for navigation.</p>
+<p>Use <code>.form-group</code> for spacing and <code>.form-label</code> on each associated label. Apply <code>.form-input</code>, <code>.form-select</code>, and <code>.form-textarea</code> to inputs, selects, and textareas respectively.</p>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;form action="/settings" method="post"&gt;
+  &lt;div class="form-group"&gt;
+    &lt;label class="form-label" for="display-name"&gt;Display name&lt;/label&gt;
+    &lt;input class="form-input" id="display-name" name="displayName" required&gt;
+  &lt;/div&gt;
+  &lt;button class="btn btn-primary" type="submit"&gt;Save&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+</div>
+
+<h3>Alerts and status</h3>
+<p>Combine <code>.alert</code> with <code>.alert-success</code>, <code>.alert-danger</code>, <code>.alert-warning</code>, or <code>.alert-info</code>. Put the status in the message text. Use <code>.badge</code> for short labels and <code>.loading</code> for a spinner with adjacent status text. Set the width of <code>.progress-fill</code> inside <code>.progress-bar</code>, and keep the width and accessible value in sync.</p>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;p class="alert alert-success"&gt;Settings saved.&lt;/p&gt;
+&lt;span class="badge"&gt;Draft&lt;/span&gt;
+&lt;p role="status"&gt;&lt;span class="loading" aria-hidden="true"&gt;&lt;/span&gt; Saving…&lt;/p&gt;
+&lt;div class="progress-bar" role="progressbar" aria-label="Upload"
+     aria-valuemin="0" aria-valuemax="100" aria-valuenow="60"&gt;
+  &lt;div class="progress-fill" style="width: 60%"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</div>
+
+<h3>Tables</h3>
+<p>Apply <code>.table</code> to a semantic HTML table. Wrap wide tables in <code>.table-responsive</code> for horizontal scrolling. Use a caption and header scopes to identify the data.</p>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;div class="table-responsive" tabindex="0" role="region" aria-label="Project status"&gt;
+  &lt;table class="table"&gt;
+    &lt;caption&gt;Project status&lt;/caption&gt;
+    &lt;thead&gt;&lt;tr&gt;&lt;th scope="col"&gt;Project&lt;/th&gt;&lt;th scope="col"&gt;Status&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+    &lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Website&lt;/td&gt;&lt;td&gt;Ready&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+</div>
+
+<h3>Modal styling</h3>
+<p><code>.modal</code> renders a hidden overlay. Add <code>.show</code> to display it, then use <code>.modal-dialog</code> and <code>.modal-content</code> around <code>.modal-header</code>, <code>.modal-body</code>, and <code>.modal-footer</code>. Your application handles opening, dismissal, Escape, moving and restoring focus, and making the background inert while the modal is open.</p>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;div class="modal"&gt;
+  &lt;div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;header class="modal-header"&gt;&lt;h2 id="confirm-title"&gt;Discard changes?&lt;/h2&gt;&lt;/header&gt;
+      &lt;div class="modal-body"&gt;&lt;p&gt;Your draft has unsaved edits.&lt;/p&gt;&lt;/div&gt;
+      &lt;footer class="modal-footer"&gt;
+        &lt;button class="btn btn-outline" type="button"&gt;Cancel&lt;/button&gt;
+        &lt;button class="btn btn-danger" type="button"&gt;Discard&lt;/button&gt;
+      &lt;/footer&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</div>
+
+</section>
+
+<section id="code">
+<h2>Code examples</h2>
+<p>Use <code>&lt;code&gt;</code> for inline code or <code>&lt;pre&gt;&lt;code&gt;</code> for a block. Add <code>.code-block</code> for the themed frame and <code>.code-label</code> for a language label. Apply <code>.code-keyword</code>, <code>.code-string</code>, and <code>.code-comment</code> to tokens you mark up for syntax colors. Make long examples keyboard-scrollable with <code>tabindex="0"</code> on the <code>&lt;pre&gt;</code>, and escape HTML characters when displaying stored snippets.</p>
+<div class="code-block">
+    <div class="code-label">PHP</div>
+    <pre tabindex="0" aria-label="Highlighted PHP example"><code><span class="code-comment">// Render the settings page.</span>
+<span class="code-keyword">return</span> view(<span class="code-string">'settings'</span>);</code></pre>
+</div>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;div class="code-block"&gt;
+  &lt;div class="code-label"&gt;PHP&lt;/div&gt;
+  &lt;pre tabindex="0" aria-label="PHP example"&gt;&lt;code&gt;&lt;span class="code-comment"&gt;// Example comment&lt;/span&gt;
+&lt;span class="code-keyword"&gt;return&lt;/span&gt; &lt;span class="code-string"&gt;'Ready'&lt;/span&gt;;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</code></pre>
+</div>
+
+</section>
+
+<section id="utilities">
+<h2>Utilities</h2>
+<p>Combine utilities with component classes, for example <code>class="card card-body mt-lg"</code>. The spacing scale is <code>xs</code> (.25rem), <code>sm</code> (.5rem), <code>md</code> (1rem), <code>lg</code> (1.5rem), <code>xl</code> (2rem), <code>2xl</code> (3rem), and <code>3xl</code> (4rem). The table lists the sizes each utility provides.</p>
+
+<div class="table-responsive" role="region" aria-label="Utility classes" tabindex="0">
+<table class="table">
+<thead><tr><th scope="col">Group</th><th scope="col">Classes</th><th scope="col">Use</th></tr></thead>
+<tbody>
+<tr><td>Gap</td><td><code>.gap-xs</code>, <code>.gap-sm</code>, <code>.gap-md</code>, <code>.gap-lg</code>, <code>.gap-xl</code></td><td>Set spacing between grid or flex children.</td></tr>
+<tr><td>Margin reset</td><td><code>.m-0</code>, <code>.mt-0</code>, <code>.mb-0</code>, <code>.ml-0</code>, <code>.mr-0</code></td><td>Set all margins or a specific side to zero.</td></tr>
+<tr><td>Top margin</td><td><code>.mt-sm</code>, <code>.mt-md</code>, <code>.mt-lg</code>, <code>.mt-xl</code></td><td>Add space above an element.</td></tr>
+<tr><td>Bottom margin</td><td><code>.mb-sm</code>, <code>.mb-md</code>, <code>.mb-lg</code>, <code>.mb-xl</code></td><td>Add space below an element.</td></tr>
+<tr><td>Padding</td><td><code>.p-0</code>, <code>.p-sm</code>, <code>.p-md</code>, <code>.p-lg</code>, <code>.p-xl</code></td><td>Set padding on all sides.</td></tr>
+<tr><td>Text alignment</td><td><code>.text-center</code>, <code>.text-left</code>, <code>.text-right</code>, <code>.text-justify</code></td><td>Align text.</td></tr>
+<tr><td>Text color</td><td><code>.text-primary</code>, <code>.text-secondary</code>, <code>.text-muted</code>, <code>.text-success</code>, <code>.text-danger</code>, <code>.text-warning</code></td><td>Apply palette colors. The primary text utility uses the accent color.</td></tr>
+<tr><td>Font weight</td><td><code>.font-bold</code>, <code>.font-normal</code>, <code>.font-light</code></td><td>Set font weight.</td></tr>
+<tr><td>Color fills</td><td><code>.bg-primary</code>, <code>.bg-success</code>, <code>.bg-warning</code>, <code>.bg-danger</code>, <code>.bg-info</code></td><td>Apply a color fill and its matching foreground.</td></tr>
+<tr><td>Display</td><td><code>.hidden</code>, <code>.block</code>, <code>.inline-block</code>, <code>.flex</code>, <code>.grid</code></td><td>Change layout or hide an element.</td></tr>
+<tr><td>Position</td><td><code>.relative</code>, <code>.absolute</code>, <code>.fixed</code>, <code>.sticky</code></td><td>Set positioning. Add inset values where needed.</td></tr>
+<tr><td>Borders</td><td><code>.border</code>, <code>.border-top</code>, <code>.border-bottom</code></td><td>Apply a one-pixel theme border.</td></tr>
+<tr><td>Corners</td><td><code>.rounded</code>, <code>.rounded-lg</code>, <code>.rounded-full</code></td><td>Round corners or create a pill shape.</td></tr>
+<tr><td>Animations</td><td><code>.fade-in</code>, <code>.slide-in-down</code>, <code>.slide-in-up</code></td><td>Run a single entrance animation using the base transition duration.</td></tr>
+<tr><td>Print</td><td><code>.no-print</code></td><td>Hide content in print. Printing also clears the container width cap and underlines links.</td></tr>
+</tbody>
+</table>
+</div>
+
+</section>
+
+<section id="theming">
+<h2>Theming</h2>
+<p>Set the following attributes on <code>&lt;html&gt;</code>. The <a href="{{ url appearanceUrl }}">Appearance</a> page previews the settings, saves preferences for these docs, and generates the markup for your project.</p>
+
+<div class="table-responsive" role="region" aria-label="Theme attributes" tabindex="0">
+<table class="table">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Values</th><th scope="col">Behavior</th></tr></thead>
+<tbody>
+<tr><td><code>data-theme</code></td><td><code>system</code>, <code>light</code>, <code>dark</code></td><td>System follows the device’s color preference and is the default. Light and dark force a scheme.</td></tr>
+<tr><td><code>data-accent</code></td><td><code>blue</code>, <code>teal</code>, <code>violet</code></td><td>Changes the primary color and related link shades. Blue is the default.</td></tr>
+<tr><td><code>data-font</code></td><td><code>system</code>, <code>inter</code>, <code>dm-sans</code>, <code>source-serif</code></td><td>Uses a font family preset. The system stack is the default. Load the matching Google Fonts stylesheet to use a named web font.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">
+    <div class="code-label">HTML</div>
+    <pre tabindex="0" aria-label="HTML example"><code data-language="html">&lt;html lang="en" data-theme="dark" data-accent="teal" data-font="dm-sans"&gt;
+&lt;head&gt;
+  &lt;link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400..800&amp;display=swap"&gt;
+  &lt;link rel="stylesheet" href="./fusionphpstyle.css"&gt;
+  &lt;link rel="stylesheet" href="./site.css"&gt;
+&lt;/head&gt;</code></pre>
+</div>
+
+<h3>CSS custom properties</h3>
+<p>Override properties in your own stylesheet. Match the built-in attribute selectors for accent or font presets you want to change. For a custom accent, set the normal, darker, and lighter shades together. Test text, links, and focus indicators on both color schemes.</p>
+
+<div class="table-responsive" role="region" aria-label="Theme settings" tabindex="0">
+<table class="table">
+<thead><tr><th scope="col">Group</th><th scope="col">Properties</th></tr></thead>
+<tbody>
+<tr><td>Brand and links</td><td><code>--primary-color</code>, <code>--primary-dark</code>, <code>--primary-light</code>, <code>--secondary-color</code>, <code>--accent-color</code>, <code>--link-color</code></td></tr>
+<tr><td>Status</td><td><code>--success-color</code>, <code>--warning-color</code>, <code>--danger-color</code>, <code>--info-color</code></td></tr>
+<tr><td>Text, surfaces, and borders</td><td><code>--text-primary</code>, <code>--text-secondary</code>, <code>--text-muted</code>, <code>--bg-primary</code>, <code>--bg-secondary</code>, <code>--bg-tertiary</code>, <code>--border-color</code></td></tr>
+<tr><td>Dark equivalents</td><td><code>--dark-text-primary</code>, <code>--dark-text-secondary</code>, <code>--dark-text-muted</code>, <code>--dark-bg-primary</code>, <code>--dark-bg-secondary</code>, <code>--dark-bg-tertiary</code>, <code>--dark-border-color</code></td></tr>
+<tr><td>Spacing and layout</td><td><code>--spacing-xs</code>, <code>--spacing-sm</code>, <code>--spacing-md</code>, <code>--spacing-lg</code>, <code>--spacing-xl</code>, <code>--spacing-2xl</code>, <code>--spacing-3xl</code>, <code>--container-width</code>. <code>--header-height</code> and <code>--sidebar-width</code> are available for application layouts.</td></tr>
+<tr><td>Typography</td><td><code>--font-family</code>, <code>--font-size-xs</code>, <code>--font-size-sm</code>, <code>--font-size-md</code>, <code>--font-size-lg</code>, <code>--font-size-xl</code>, <code>--font-size-2xl</code>, <code>--font-size-3xl</code>, <code>--font-size-4xl</code></td></tr>
+<tr><td>Radii, shadows, and motion</td><td><code>--radius-sm</code>, <code>--radius-md</code>, <code>--radius-lg</code>, <code>--radius-xl</code>, <code>--radius-2xl</code>, <code>--radius-full</code>, <code>--shadow-sm</code>, <code>--shadow-md</code>, <code>--shadow-lg</code>, <code>--shadow-xl</code>, <code>--transition-fast</code>, <code>--transition-base</code>, <code>--transition-slow</code></td></tr>
+<tr><td>Code palette</td><td><code>--code-background</code>, <code>--code-toolbar</code>, <code>--code-border</code>, <code>--code-text</code>, <code>--code-label</code>, <code>--code-keyword</code>, <code>--code-string</code>, <code>--code-comment</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">
+    <div class="code-label">CSS</div>
+    <pre tabindex="0" aria-label="CSS example"><code data-language="css">/* Load site.css after fusionphpstyle.css. */
+:root {
+  --container-width: 70rem;
+  --dark-bg-primary: #182234;
+}
+
+:root[data-accent="teal"] {
+  --primary-color: #0e6d63;
+  --primary-dark: #08564e;
+  --primary-light: #77e4d6;
+}</code></pre>
+</div>
+
+</section>
+
+<section id="javascript">
+<h2>JavaScript components</h2>
+<p><code>fusionphp.js</code> is FusionPHP’s own optional companion to <code>fusionphpstyle.css</code>. Both are already loaded by the bundled PHP layouts. For a standalone page, download the files, place them next to your HTML, and load them once in the document head. If you write an FPF view, put the script tag in a PHP layout because the FPF compiler restricts script elements.</p>
+<div class="code-block">
+    <div class="code-label">Installation</div>
+    <pre tabindex="0" aria-label="Installation example"><code data-language="html">&lt;link rel="stylesheet" href="./fusionphpstyle.css"&gt;
+&lt;script src="./fusionphp.js" defer&gt;&lt;/script&gt;</code></pre>
+</div>
+<h3>Collapsible panels</h3>
+<p>Use <code>data-fusion-toggle</code> with the target ID. Match the button’s <code>aria-controls</code> and initial <code>aria-expanded</code> to the panel. Add <code>data-fusion-panel</code> so a hidden panel stays hidden even if a display utility is applied.</p>
+<button type="button" class="btn btn-outline" data-fusion-toggle="style-panel" aria-controls="style-panel" aria-expanded="false">Toggle details</button>
+<div class="card card-body mt-sm" id="style-panel" data-fusion-panel hidden>FusionPHP updates the panel and the button’s accessible expanded state together.</div>
+<div class="code-block">
+    <div class="code-label">Collapsible panel</div>
+    <pre tabindex="0" aria-label="Collapsible panel example"><code data-language="html">&lt;button type="button" class="btn btn-outline" data-fusion-toggle="details"
+        aria-controls="details" aria-expanded="false"&gt;Toggle details&lt;/button&gt;
+&lt;div id="details" data-fusion-panel hidden&gt;Panel content&lt;/div&gt;</code></pre>
+</div>
+<h3>Responsive navbar</h3>
+<p>Use the same toggle with <code>.navbar-toggle</code> and add <code>data-fusion-navbar</code> to the link list. Start with the button hidden. The script shows it on small screens and collapses the list there. Desktop and JavaScript-disabled layouts keep the links visible. The documentation navbar uses this pattern.</p>
+<div class="code-block">
+    <div class="code-label">Navbar</div>
+    <pre tabindex="0" aria-label="Navbar example"><code data-language="html">&lt;nav class="navbar navbar-container" aria-label="Main navigation"&gt;
+  &lt;a class="navbar-brand" href="/"&gt;Home&lt;/a&gt;
+  &lt;button type="button" class="btn btn-outline navbar-toggle"
+          data-fusion-toggle="site-nav" aria-controls="site-nav"
+          aria-expanded="false" hidden&gt;Menu&lt;/button&gt;
+  &lt;ul class="navbar-nav" id="site-nav" data-fusion-navbar&gt;
+    &lt;li&gt;&lt;a class="nav-link" href="/settings"&gt;Settings&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+</div>
+<h3>Dialogs and dismissible alerts</h3>
+<p>Use <code>data-fusion-open</code> with a native dialog’s ID and <code>data-fusion-close</code> on a button inside it. The browser handles Escape, focus, and the modal backdrop. In FusionPHP, put the native <code>&lt;dialog&gt;</code> markup in a PHP view. Use <code>data-fusion-dismiss</code> inside an <code>.alert</code> to hide it.</p>
+<div class="alert alert-info">
+    This alert can be dismissed.
+    <button type="button" class="btn btn-outline btn-sm" data-fusion-dismiss>Dismiss</button>
+</div>
+<div class="code-block">
+    <div class="code-label">Dialog and alert</div>
+    <pre tabindex="0" aria-label="Dialog and alert example"><code data-language="html">&lt;button type="button" class="btn btn-primary" data-fusion-open="notice"&gt;Open dialog&lt;/button&gt;
+&lt;dialog class="modal-dialog" id="notice" aria-labelledby="notice-title"&gt;
+  &lt;div class="modal-header"&gt;&lt;h2 id="notice-title"&gt;Notice&lt;/h2&gt;&lt;/div&gt;
+  &lt;div class="modal-body"&gt;&lt;p&gt;Review your settings.&lt;/p&gt;&lt;/div&gt;
+  &lt;div class="modal-footer"&gt;
+    &lt;button class="btn btn-outline" type="button" data-fusion-close&gt;Close&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;
+
+&lt;div class="alert alert-info"&gt;
+  Settings are ready.
+  &lt;button type="button" class="btn btn-outline btn-sm" data-fusion-dismiss&gt;Dismiss&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+</div>
+</section>
+<section id="ajax">
+<h2>AJAX requests</h2>
+<p>Use <code>FusionPHP.ajax</code> from an application script loaded after <code>fusionphp.js</code>. The request helper builds on Fetch and sends same-origin cookies by default. It returns parsed JSON for JSON responses, text for other response types, or <code>null</code> for an empty response. It throws <code>FusionPHP.ajax.AjaxError</code> for non-2xx responses. Use the error’s <code>status</code>, <code>data</code>, and <code>response</code> properties to inspect it. Browser network errors and aborted requests reject separately.</p>
+<dl>
+    <dt><code>FusionPHP.ajax.request(url, options)</code></dt>
+    <dd>Pass standard Fetch options such as <code>method</code>, <code>headers</code>, <code>credentials</code>, or <code>signal</code>. Set <code>json</code> to send a JSON body, or use <code>body</code> for FormData or other input. Include any authentication or CSRF data your endpoint requires.</dd>
+    <dt><code>FusionPHP.ajax.get(url, options)</code></dt>
+    <dd>Send a GET request. Include query parameters in the URL.</dd>
+    <dt><code>FusionPHP.ajax.post(url, json, options)</code></dt>
+    <dd>Send a POST request with a JSON body. Omit the second argument or pass <code>undefined</code> if you provide a raw <code>body</code> instead.</dd>
+</dl>
+<div class="code-block">
+    <div class="code-label">JavaScript request</div>
+    <pre tabindex="0" aria-label="JavaScript request example"><code data-language="javascript">async function sendName(name) {
+  try {
+    const result = await FusionPHP.ajax.post('/api/example', { name });
+    return result.data.name;
+  } catch (error) {
+    if (error instanceof FusionPHP.ajax.AjaxError &amp;&amp; error.status === 422) {
+      return error.data.errors.name[0];
+    }
+    throw error;
+  }
+}</code></pre>
+</div>
+<p>The sample path assumes the default API prefix and a root install with clean URLs. In a FusionPHP controller use <code>$this-&gt;request-&gt;apiUrl('/example')</code> to generate the actual URL, including any mount path or <code>/index.php</code> entry point.</p>
+<h3>AJAX forms</h3>
+<p>Add <code>data-fusion-ajax="json"</code> to submit form fields as JSON, or use <code>data-fusion-ajax</code> by itself to submit FormData. GET forms append fields to the query string. Repeated JSON field names become arrays. File fields require FormData. Set <code>data-fusion-result</code> to the ID of an optional element where progress and results will appear as text. In production, protect state-changing endpoints with the same authorization and CSRF checks you apply to ordinary form requests.</p>
+<p>For a session-backed endpoint protected by <code>Csrf::protect()</code>, include a hidden <code>_csrf</code> field using the value produced by <code>Csrf::token()</code>. With a programmatic request, pass <code>{ headers: { 'X-CSRF-Token': token } }</code> as the third argument to <code>FusionPHP.ajax.post()</code>. The public echo demo below does not use a session or modify stored data.</p>
+<p>The form marks itself busy and ignores repeat submissions while a request is pending. It dispatches bubbling <code>fusionphp:success</code> with <code>event.detail.data</code> or <code>fusionphp:error</code> with <code>event.detail.error</code>. Keep server-side validation in the endpoint.</p>
+{% if apiEnabled %}
+<p>Try <strong>Ada</strong> for a successful response or <strong>A</strong> for a validation error.</p>
+<form class="card card-body" action="{{ url apiExampleUrl }}" method="post" data-fusion-ajax="json" data-fusion-result="ajax-demo-result">
+    <div class="form-group">
+        <label class="form-label" for="ajax-demo-name">Name</label>
+        <input class="form-input" id="ajax-demo-name" name="name" value="Ada" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Send JSON</button>
+    <pre id="ajax-demo-result" role="status">Waiting for a request.</pre>
+</form>
+{% else %}
+<p class="alert alert-info">Set <code>APP_MODE=both</code> to enable the live form. The API guide explains the endpoint and its expected responses.</p>
+{% endif %}
+<div class="code-block">
+    <div class="code-label">AJAX form</div>
+    <pre tabindex="0" aria-label="AJAX form example"><code data-language="html">&lt;form method="post" action="/api/example" data-fusion-ajax="json" data-fusion-result="result"&gt;
+  &lt;label class="form-label" for="name"&gt;Name&lt;/label&gt;
+  &lt;input class="form-input" id="name" name="name" required&gt;
+  &lt;button type="submit" class="btn btn-primary"&gt;Send&lt;/button&gt;
+&lt;/form&gt;
+&lt;pre id="result" role="status"&gt;Waiting for a request.&lt;/pre&gt;</code></pre>
+</div>
+<p>See the <a href="{{ url apiGuideUrl }}">API guide</a> for the PHP controller and its response formats.</p>
+</section>

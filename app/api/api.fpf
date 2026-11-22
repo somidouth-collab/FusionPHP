@@ -1,0 +1,77 @@
+<header class="page-header">
+<h1>{{ title }}</h1>
+<p>See <a href="{{ url fusionJsGuideUrl }}">the FusionPHP JavaScript guide</a> to call these endpoints from a browser with AJAX.</p>
+<p>Declare JSON endpoints beside the web views in a page controller. By default the two surfaces run together, with JSON endpoints under <code>/api</code>.</p>
+</header>
+<nav class="docs-contents" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+        <li><a href="#try-api">Available endpoints</a></li>
+        <li><a href="#create-endpoint">Register a handler</a></li>
+        <li><a href="#responses">Responses and validation</a></li>
+        <li><a href="#api-access">Sessions and access</a></li>
+    </ul>
+</nav>
+    {% if apiEnabled %}
+        <p><a href="{{ url apiRootUrl }}">Open the JSON endpoint catalog</a>.</p>
+    {% else %}
+<p class="alert alert-info mt-md">The current environment is in web mode. Set <code>APP_MODE=both</code> to try the endpoints.</p>
+    {% endif %}
+    <section id="try-api">
+    <h2>Available endpoints</h2>
+        <dl>
+            {% for endpoint in endpoints %}
+        <dt><code>{{ endpoint.method }} {{ endpoint.path }}</code></dt>
+                <dd>{{ endpoint.description }}</dd>
+            {% endfor %}
+        </dl>
+    <p>Run this command against the built-in example before adding a new controller. A successful request returns HTTP 200 and the JSON below.</p>
+    <div class="code-block">
+        <div class="code-label">Shell</div>
+        <pre tabindex="0" aria-label="Shell example"><code data-language="shell">{{ command }}</code></pre>
+    </div>
+    <div class="code-block">
+        <div class="code-label">JSON</div>
+        <pre tabindex="0" aria-label="JSON example"><code data-language="json">{{ response }}</code></pre>
+    </div>
+    </section>
+    <section id="create-endpoint">
+    <h2>Register a handler</h2>
+    <p>Override <code>api()</code> with an alias and a map of HTTP methods to public handlers. The router adds <code>API_PREFIX</code> and the controller’s optional <code>base()</code>. In the handler, use <code>$this-&gt;request-&gt;json()</code> to read a JSON body or <code>validate()</code> to check it.</p>
+    <p>Save this complete class as <code>app/greeting/GreetingController.php</code> to add a separate endpoint. Restart the local server if needed, then send the request below. The response is HTTP 200 with the same JSON as the built-in example.</p>
+    <div class="code-block">
+        <div class="code-label">PHP</div>
+        <pre tabindex="0" aria-label="PHP example"><code data-language="php">{{ greetingController }}</code></pre>
+    </div>
+    <div class="code-block">
+        <div class="code-label">Shell</div>
+        <pre tabindex="0" aria-label="Shell example"><code data-language="shell">{{ greetingCommand }}</code></pre>
+    </div>
+    </section>
+    <section id="responses">
+    <h2>Responses and validation</h2>
+    <p>Use <code>json($data, $status)</code> for a response, <code>jsonError()</code> for an application error, or <code>abort($status, $message)</code> for the framework error format. Error responses carry a status and message. Validation adds field errors under <code>errors</code>.</p>
+    <div class="code-block">
+        <div class="code-label">JSON</div>
+        <pre tabindex="0" aria-label="JSON example"><code data-language="json">{{ validationError }}</code></pre>
+    </div>
+    <p>Replace <code>Ada</code> with <code>A</code> in the request to reproduce the validation response. Use this checklist to tell routing, content type, and validation errors apart.</p>
+    <div class="table-responsive" role="region" aria-label="API response checklist" tabindex="0">
+        <table class="table">
+            <thead><tr><th scope="col">Request</th><th scope="col">Expected response</th></tr></thead>
+            <tbody>
+                <tr><td>POST with <code>{"name":"Ada"}</code> as JSON</td><td><strong>200</strong> with the submitted name.</td></tr>
+                <tr><td>POST with <code>{"name":"A"}</code> as JSON</td><td><strong>422</strong> with a field error for <code>name</code>.</td></tr>
+                <tr><td>POST with an incomplete JSON body such as <code>{</code></td><td><strong>400</strong> when the handler reads the body.</td></tr>
+                <tr><td>POST without <code>Content-Type: application/json</code></td><td><strong>415</strong> from the example handler.</td></tr>
+                <tr><td>GET on the POST-only endpoint</td><td><strong>405</strong> with <code>Allow: POST</code>.</td></tr>
+                <tr><td>Request to an unknown endpoint</td><td><strong>404</strong>. Check <code>APP_MODE</code>, <code>API_PREFIX</code>, and whether the URL needs <code>/index.php</code>.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    </section>
+    <section id="api-access">
+    <h2>Sessions and access</h2>
+    <p>API requests run without session cookies by default. Set <code>API_SESSION=true</code> for session-backed endpoints. The sample endpoints are public. Add page middleware to enforce authentication for private endpoints.</p>
+    <p><code>API_KEY</code> and <code>API_BASE_URL</code> are configuration values your application can read with <code>config()</code>. Implement token checks in middleware when your API requires them. Configure CORS at the server or in middleware for a separate frontend origin.</p>
+    </section>

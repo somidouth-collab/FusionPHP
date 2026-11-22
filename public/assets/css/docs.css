@@ -1,0 +1,113 @@
+.docs {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    line-height: 1.65;
+}
+
+.docs .navbar-container {
+    max-width: 72rem;
+}
+
+.docs-main a:not(.btn) {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.docs-main {
+    max-width: 62rem;
+    padding-block: clamp(1.5rem, 6vw, 4rem);
+}
+
+.docs-main h1 {
+    margin: 0 0 .75rem;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    line-height: 1.12;
+    letter-spacing: -.045em;
+}
+
+.docs-main section {
+    margin-block: 2rem;
+}
+
+.docs-main .page-header {
+    border-block-start: 3px solid var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.docs-main section > h2 {
+    padding-block-end: .5rem;
+    border-block-end: 1px solid var(--border-color);
+}
+
+.docs-main .card h2,
+.docs-main .card h3 {
+    font-size: var(--font-size-lg);
+}
+
+.docs-main dd {
+    margin-block: .25rem .75rem;
+    color: var(--text-secondary);
+}
+
+.class-index {
+    margin-block-start: var(--spacing-lg);
+}
+
+.class-index ul {
+    columns: 11rem;
+}
+
+.class-index li {
+    break-inside: avoid;
+}
+
+.class-entry {
+    border-top: 1px solid var(--border-color);
+    padding-block: 1.5rem;
+    scroll-margin-top: 6rem;
+}
+
+.class-entry h3 {
+    font-size: 1.45rem;
+}
+
+.class-entry dt {
+    margin-top: .75rem;
+    overflow-wrap: anywhere;
+}
+
+#appearance-status:empty {
+    display: none;
+}
+
+.docs-main section[id] {
+    scroll-margin-top: 6rem;
+}
+
+.docs-contents {
+    margin-block: var(--spacing-lg);
+    padding: var(--spacing-md);
+    border-inline-start: 2px solid var(--link-color);
+    background: var(--bg-primary);
+}
+
+.docs-contents p {
+    margin-block-end: var(--spacing-sm);
+    font-weight: 700;
+}
+
+.docs-contents ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs) var(--spacing-md);
+    list-style: none;
+}
+
+.docs-steps {
+    padding-inline-start: var(--spacing-lg);
+}
+
+.docs-steps li + li {
+    margin-block-start: var(--spacing-sm);
+}
